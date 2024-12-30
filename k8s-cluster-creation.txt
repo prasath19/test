@@ -1,0 +1,131 @@
+Update the system
+
+# apt update
+
+Insatll awicli and configure the aws CLI with admin user
+
+# curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+
+# apt install unzip
+
+# unzip awscliv2.zip
+
+# ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+
+# aws --version
+
+   Configure AWS-CLI
+
+    # aws configure
+
+    To validate the configuration
+
+    # aws configure list
+   
+    #  chmod 600 ~/.aws/config
+
+Install kubectl
+
+# curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.31.2/2024-11-15/bin/linux/amd64/kubectl
+
+# chmod +x ./kubectl
+
+# mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$HOME/bin:$PATH
+
+# kubectl version
+
+Install eksctl
+
+ # curl -sL "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" -o eksctl.tar.gz
+
+ # ls -lh eksctl.tar.gz
+
+ # tar -xzf eksctl.tar.gz
+
+ # mv eksctl /usr/local/bin
+ 
+ # eksctl version
+
+Validate kubectl and eksctl installed on same path.
+
+# # which kubectl
+
+#  which eksctl
+
+The path should be /usr/local/bin/eksctl  , /usr/local/bin/kubectl
+
+mv /root/bin/kubectl /usr/local/bin/
+
+hash -r 
+
+if after moving the kubectl location, when running the kubectl version getting error run the above hash -r command.
+
+# Create Cluster
+eksctl create cluster --name=eksdemo1 \
+                      --region=us-east-1 \
+                      --zones=us-east-1a,us-east-1b \
+                      --without-nodegroup 
+
+
+# Get List of clusters
+eksctl get cluster  
+
+
+# create iodc provider and attach it to cluster
+eksctl utils associate-iam-oidc-provider \
+    --region us-east-1 \
+    --cluster eksdemo1 \
+    --approve
+
+
+eksctl create nodegroup --cluster=eksdemo1 \
+                       --region=us-east-1 \
+                       --name=eksdemo1-ng-public1 \
+                       --node-type=t3.medium \
+                       --nodes=2 \
+                       --nodes-min=2 \
+                       --nodes-max=4 \
+                       --node-volume-size=20 \
+                       --ssh-access \
+                       --ssh-public-key=aws_devops \
+                       --managed \
+                       --asg-access \
+                       --external-dns-access \
+                       --full-ecr-access \
+                       --appmesh-access \
+                       --alb-ingress-access 
+
+# eksctl get nodegroup --cluster=eksdemo1
+
+# eksctl get cluster --name eksdemo1 --region us-east-1
+
+# kubectl get nodes
+
+# kubectl config view
+
+kubectl describe node ip-192-168-31-68.ec2.internal
+  124  kubectl get nodes
+  125  kubectl describe node ip-192-168-54-204.ec2.internal
+
+
+TO delete EKS cluster
+
+
+# List EKS Clusters
+eksctl get clusters
+
+# Capture Node Group name
+eksctl get nodegroup --cluster=<clusterName>
+eksctl get nodegroup --cluster=eksdemo1
+
+# Delete Node Group
+eksctl delete nodegroup --cluster=<clusterName> --name=<nodegroupName>
+eksctl delete nodegroup --cluster=eksdemo1 --name=eksdemo1-ng-public1
+
+
+# Delete Cluster
+eksctl delete cluster <clusterName>
+eksctl delete cluster eksdemo1
+
+
+
