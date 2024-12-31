@@ -1,3 +1,8 @@
+Access key ID	Secret access key
+AKIAQ3EGPFFMVIDRCZEL	RrGKemNaPltMELrgTphrr2j5VsnBsRwUrhtTBKTQ
+
+
+
 Update the system
 
 # apt update
